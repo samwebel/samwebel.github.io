@@ -28,33 +28,68 @@
       <div id="about-content" class="content hidden" style="display: none;">
         <div class="inner">
           <p>Sam Webel is an actor, musician, director and writer, deeply passionate about creating new work in theater charged by devised movement, verbatim text and live music. Sam's directing work has been presented at Boston Conservatory at Berklee, and his writing has been performed in Boston through company Liars and Believers, and as part of Boston Conservatory at Berklee's 2025 Capstone Festival.</p>
+          
           <p>Sam's acting work has been seen at theaters in Boston including Boston Playwright's Theater, Liars and Believers, and the Cambridge Multicultural Arts Center. He has also performed extensively at Boston Conservatory as part of their mainstage seasons, through theater company See Humans, and New Ground Theater Co.</p>
+          
           <p>Sam has always centered his creative spirit around new work, and he finds joy in writing theater by himself and with collaborators. His writing varies from Theater For Young Audiences that speaks frankly to children's experiences, to verbatim theater and found theater that spurs new narratives out of real-world stories from professionals in areas including songwriting and public health.</p>
+
           <p>Sam is also invested in creating welcoming educational spaces for young people of diverse backgrounds. His teaching artistry has taken him to venues including the Shakespeare Theater of New Jersey in Madison, New Jersey in 2024, where he specialized in coaching Shakespeare monologues performed by middle and high school students.</p>
+          
           <p>Sam is currently a candidate for a Bachelor of Fine Arts from Boston Conservatory at Berklee.</p>
         </div>
-        <div>
-          <img src="media/about/Sam Webel Headshot (2).jpg">
-        </div>
+        <figure>
+          <img src="media/about/Sam Webel Headshot (2).jpg" alt="Sam Webel">
+        </figure>
       </div>
       <div id="portfolio-content" class="content hidden" style="display: none;">
-        <h2>Portfolio</h2>
+        <div id="headshot">
+          <div>
+            <h2>Headshot</h2>
+            <a download="Sam Webel Headshot">Download</a>
+          </div>
+          <figure>
+            <img src="media/about/Sam Webel Headshot (2).jpg" alt="Sam Webel Headshot">
+          </figure>
+        </div>
+        <div id="resume">
+          <div>
+            <h2>Résumé</h2>
+            <a download="Sam Webel Resume">Download</a>
+          </div>
+          <figure>
+            <img src="media/about/Sam Webel Headshot (2).jpg" alt="Sam Webel Résumé">
+          </figure>
+        </div>
       </div>
       <div id="projects-content" class="content hidden" style="display: none;">
-        <ul id="project-filters">
-          <li><button id="filter-all" class="filter selected">All</button></li>
-          <li><button id="filter-acting" class="filter">Acting</button></li>
-          <li><button id="filter-directing" class="filter">Directing</button></li>
-          <li><button id="filter-writing" class="filter">Writing</button></li>
-          <li><button id="filter-teaching" class="filter">Teaching</button></li>
-        </ul>
+        <ul id="project-filters"></ul>
         <ul id="projects"></ul>
       </div>
       <div id="gallery-content" class="content hidden" style="display: none;">
         <ul class="gallery"></ul>
       </div>
       <div id="contact-content" class="content hidden" style="display: none;">
-        <h2>Contact</h2>
+        <div>
+          <form action="https://api.web3forms.com/submit" method="POST">
+            <input id="email-key" type="hidden" name="access_key" value="KEY">
+            <div>
+              <h2>Name</h2>
+              <input type="text" name="name" required>
+            </div>
+            <div>
+              <h2>Email</h2>
+              <input type="email" name="email" required>
+            </div>
+            <div>
+              <h2>Message</h2>
+              <textarea name="message" required></textarea>
+            </div>
+            <div>
+              <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+              <button type="submit">Send</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
     <script type="module" src="app.js"></script>
