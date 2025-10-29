@@ -53,15 +53,15 @@ window.addEventListener('DOMContentLoaded', init);
 // FETCH
 
 async function getProjects() {
-  await fetch(PROJECTS_URL).then((res) => res.text()).then((rep) => { projects = JSON.parse(rep.substring(47).slice(0,-2)).table.rows; });
+  await fetch(PROJECTS_URL).then((res) => res.text()).then((rep) => { projects = JSON.parse(rep.substring(47).slice(0, -2)).table.rows; });
 }
 
 async function getGallery() {
-  await fetch(GALLERY_URL).then((res) => res.text()).then((rep) => { gallery = JSON.parse(rep.substring(47).slice(0,-2)).table.rows; });
+  await fetch(GALLERY_URL).then((res) => res.text()).then((rep) => { gallery = JSON.parse(rep.substring(47).slice(0, -2)).table.rows; });
 }
 
 async function getInjections() {
-  await fetch(INJECTIONS_URL).then((res) => res.text()).then((rep) => { injections = JSON.parse(rep.substring(47).slice(0,-2)).table.rows; });
+  await fetch(INJECTIONS_URL).then((res) => res.text()).then((rep) => { injections = JSON.parse(rep.substring(47).slice(0, -2)).table.rows; });
 }
 
 // CHANGE PAGES
@@ -80,11 +80,11 @@ function changePage(target) {
   })
   localStorage.currentPage = target;
 
-  window.setTimeout(function() {
+  window.setTimeout(function () {
     obj.setAttribute('style', 'display: flex;');
   }, 500)
 
-  window.setTimeout(function() {
+  window.setTimeout(function () {
     document.querySelectorAll('.content').forEach((el) => {
       if (el.getAttribute('id') != (target + '-content')) {
         el.setAttribute('style', 'display: none;');
@@ -125,7 +125,7 @@ function textToParagraph(text) {
 function makeProjects() {
   let projectMap = new Map();
 
-  for (let i = 0; i < projects.length; i ++) {
+  for (let i = 0; i < projects.length; i++) {
     if (projects[i].c[PROJECTS_COLS.title] == null || projects[i].c[PROJECTS_COLS.date] == null || projects[i].c[PROJECTS_COLS.show].v == false) { continue; }
     let date = projects[i].c[PROJECTS_COLS.date].v.split('(')[1].split(')')[0].split(',');
     let utc = Date.UTC(date[0], date[1], date[2]);
@@ -134,14 +134,14 @@ function makeProjects() {
 
   let projectDates = Array.from(projectMap.keys()).sort().reverse();
   let sortedProjects = [];
-  for (let i = 0; i < projectDates.length; i ++) {
+  for (let i = 0; i < projectDates.length; i++) {
     sortedProjects.push(projects[projectMap.get(projectDates[i])]);
   }
 
   let filters = new Set();
   let html = '';
 
-  for (let i = 0; i < sortedProjects.length; i ++) {
+  for (let i = 0; i < sortedProjects.length; i++) {
     let type = '';
     if (sortedProjects[i].c[PROJECTS_COLS.type] != null) {
       let types = sortedProjects[i].c[PROJECTS_COLS.type].v.replace(', ', ' ');
@@ -210,21 +210,21 @@ function filterProjects(type) {
 function makeGallery() {
   let html = '';
 
-  for (let i = 0; i < gallery.length; i ++) {
+  for (let i = 0; i < gallery.length; i++) {
     if (gallery[i].c[GALLERY_COLS.image] == null || gallery[i].c[GALLERY_COLS.show].v == false) { continue; }
 
     let imgSrc = driveUrlToThumb(gallery[i].c[GALLERY_COLS.image].v);
 
     html += `<li><figure><img src="${imgSrc}"></figure></li>`;
   }
-  
+
   document.querySelector('#gallery-content .gallery').innerHTML = html;
 }
 
 // INJECTIONS
 
 function makeInjections() {
-  for (let i = 0; i < injections.length; i ++) {
+  for (let i = 0; i < injections.length; i++) {
     if (injections[i].c[INJECTIONS_COLS.selector] == null || injections[i].c[INJECTIONS_COLS.attribute] == null || injections[i].c[INJECTIONS_COLS.value] == null || injections[i].c[INJECTIONS_COLS.type] == null || injections[i].c[INJECTIONS_COLS.apply].v == false) { continue; }
 
     let value = injections[i].c[INJECTIONS_COLS.value].v;
@@ -242,8 +242,6 @@ function makeInjections() {
       default:
         break;
     }
-
-    console.log(value);
 
     let elements = document.querySelectorAll(injections[i].c[INJECTIONS_COLS.selector].v);
 
