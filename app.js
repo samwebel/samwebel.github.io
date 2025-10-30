@@ -5,9 +5,11 @@ const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?`;
 const PROJECTS_SHEET = 'Projects';
 const GALLERY_SHEET = 'Gallery';
 const INJECTIONS_SHEET = 'Injections';
+const PORTFOLIO_SHEET = 'Portfolio';
 const PROJECTS_URL = `${BASE}&sheet=${PROJECTS_SHEET}&tq=${QUERY}`;
 const GALLERY_URL = `${BASE}&sheet=${GALLERY_SHEET}&tq=${QUERY}`;
 const INJECTIONS_URL = `${BASE}&sheet=${INJECTIONS_SHEET}&tq=${QUERY}`;
+const PORTFOLIO_URL = `${BASE}&sheet=${PORTFOLIO_SHEET}&tq=${QUERY}`;
 
 const PROJECTS_COLS = {
   "title": 0,
@@ -33,20 +35,29 @@ const INJECTIONS_COLS = {
   "apply": 4
 }
 
+const PORTFOLIO_COLS = {
+  "name": 0,
+  "download": 1,
+  "image": 2,
+  "show": 3
+}
+
 const MONTHS = new Map([[1, "January"], [2, "February"], [3, "March"], [4, "April"], [5, "May"], [6, "June"], [7, "July"], [8, "August"], [9, "September"], [10, "October"], [11, "November"], [12, "December"]]);
 
 let projects;
 let gallery;
 let injections;
+let portfolio;
 
 async function init() {
   let currentPage = (localStorage.currentPage != null) ? localStorage.currentPage : 'about';
   changePage(currentPage);
 
-  await Promise.all([getProjects(), getGallery(), getInjections()]);
+  await Promise.all([getProjects(), getGallery(), getInjections(), getPortfolio()]);
   makeProjects();
   makeGallery();
   makeInjections();
+  makePortfolio();
 }
 window.addEventListener('DOMContentLoaded', init);
 
@@ -62,6 +73,10 @@ async function getGallery() {
 
 async function getInjections() {
   await fetch(INJECTIONS_URL).then((res) => res.text()).then((rep) => { injections = JSON.parse(rep.substring(47).slice(0, -2)).table.rows; });
+}
+
+async function getPortfolio() {
+  await fetch(PORTFOLIO_URL).then((res) => res.text()).then((rep) => { portfolio = JSON.parse(rep.substring(47).slice(0, -2)).table.rows; });
 }
 
 // CHANGE PAGES
@@ -219,6 +234,25 @@ function makeGallery() {
   }
 
   document.querySelector('#gallery-content .gallery').innerHTML = html;
+}
+
+function makePortfolio() {
+  let html = '';
+  for (let i = 0; i < portfolio.length; i++) {
+    if (portfolio[i].c[PORTFOLIO_COLS.name] == null || portfolio[i].c[PORTFOLIO_COLS.download] == null || portfolio[i].c[PORTFOLIO_COLS.show].v == false) { continue; }
+
+    let imgSrc;
+    if (portfolio[i].c[PORTFOLIO_COLS.image] != null) {
+      imgSrc = driveUrlToThumb(portfolio[i].c[PORTFOLIO_COLS.image].v);
+    }
+    else {
+      imgSrc = driveUrlToThumb(portfolio[i].c[PORTFOLIO_COLS.download].v);
+    }
+
+    html += `<li class="document"><figure><img src="${imgSrc}"></figure><div><h2>${portfolio[i].c[PORTFOLIO_COLS.name].v}</h2><a download="${portfolio[i].c[PORTFOLIO_COLS.name].v} - Sam Webel" href="${driveUrlToDownload(portfolio[i].c[PORTFOLIO_COLS.download].v)}">Download</a></div></li>`;
+  }
+
+  document.querySelector('#portfolio-documents').innerHTML = html;
 }
 
 // INJECTIONS
