@@ -1,221 +1,173 @@
-const QUERY = encodeURIComponent('Select *');
+import * as sdb from "https://cdn.jsdelivr.net/gh/cjeffreybda/sheets-db@v0.0.2/sheets-db.js";
 
-const SHEET_ID = '1NtEgXCUK2l95tw04zyHkHejwEGppVbJ53KAWKHhk06E';
-const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?`;
-const PROJECTS_SHEET = 'Projects';
-const GALLERY_SHEET = 'Gallery';
-const INJECTIONS_SHEET = 'Injections';
-const PORTFOLIO_SHEET = 'Portfolio';
-const PROJECTS_URL = `${BASE}&sheet=${PROJECTS_SHEET}&tq=${QUERY}`;
-const GALLERY_URL = `${BASE}&sheet=${GALLERY_SHEET}&tq=${QUERY}`;
-const INJECTIONS_URL = `${BASE}&sheet=${INJECTIONS_SHEET}&tq=${QUERY}`;
-const PORTFOLIO_URL = `${BASE}&sheet=${PORTFOLIO_SHEET}&tq=${QUERY}`;
+let documents = {
+  main: "1NtEgXCUK2l95tw04zyHkHejwEGppVbJ53KAWKHhk06E",
+};
 
-const PROJECTS_COLS = {
-  "title": 0,
-  "date": 1,
-  "type": 2,
-  "at": 3,
-  "body": 4,
-  "image": 5,
-  "show": 6
-}
+let sheets = {
+  projects: {
+    name: "Projects",
+    document: "main",
+    fields: ["title", "date", "type", "at", "body", "image", "show"],
+  },
+  gallery: {
+    name: "Gallery",
+    document: "main",
+    fields: ["image", "caption", "show"],
+  },
+  injections: {
+    name: "Injections",
+    document: "main",
+    fields: ["selector", "attribute", "value", "type", "apply"],
+  },
+  portfolio: {
+    name: "Portfolio",
+    document: "main",
+    fields: ["name", "download", "image", "show"],
+  },
+};
 
-const GALLERY_COLS = {
-  "image": 0,
-  "caption": 1,
-  "show": 2
-}
-
-const INJECTIONS_COLS = {
-  "selector": 0,
-  "attribute": 1,
-  "value": 2,
-  "type": 3,
-  "apply": 4
-}
-
-const PORTFOLIO_COLS = {
-  "name": 0,
-  "download": 1,
-  "image": 2,
-  "show": 3
-}
-
-const MONTHS = new Map([[1, "January"], [2, "February"], [3, "March"], [4, "April"], [5, "May"], [6, "June"], [7, "July"], [8, "August"], [9, "September"], [10, "October"], [11, "November"], [12, "December"]]);
-
-let projects;
-let gallery;
-let injections;
-let portfolio;
+sdb.setReferences(documents, sheets);
 
 async function init() {
-  let currentPage = (localStorage.currentPage != null) ? localStorage.currentPage : 'about';
+  let currentPage =
+    localStorage.currentPage != null ? localStorage.currentPage : "about";
   changePage(currentPage);
 
-  await Promise.all([getProjects(), getGallery(), getInjections(), getPortfolio()]);
-  makeProjects();
-  makeGallery();
-  makeInjections();
-  makePortfolio();
+  sdb.fetchSheet("injections", makeInjections);
+  sdb.fetchSheet("portfolio", makePortfolio);
+  sdb.fetchSheet("projects", makeProjects);
+  sdb.fetchSheet("gallery", makeGallery);
 }
-window.addEventListener('DOMContentLoaded', init);
-
-// FETCH
-
-async function getProjects() {
-  await fetch(PROJECTS_URL).then((res) => res.text()).then((rep) => { projects = JSON.parse(rep.substring(47).slice(0, -2)).table.rows; });
-}
-
-async function getGallery() {
-  await fetch(GALLERY_URL).then((res) => res.text()).then((rep) => { gallery = JSON.parse(rep.substring(47).slice(0, -2)).table.rows; });
-}
-
-async function getInjections() {
-  await fetch(INJECTIONS_URL).then((res) => res.text()).then((rep) => { injections = JSON.parse(rep.substring(47).slice(0, -2)).table.rows; });
-}
-
-async function getPortfolio() {
-  await fetch(PORTFOLIO_URL).then((res) => res.text()).then((rep) => { portfolio = JSON.parse(rep.substring(47).slice(0, -2)).table.rows; });
-}
+window.addEventListener("DOMContentLoaded", init);
 
 // CHANGE PAGES
 
 function changePage(target) {
-  document.querySelectorAll('.content').forEach((el) => {
-    el.classList.add('hidden');
+  document.querySelectorAll(".content").forEach((el) => {
+    el.classList.add("hidden");
   });
 
-  let obj = document.getElementById(target + '-content');
-  document.querySelectorAll('.nav').forEach((el) => {
-    el.classList.remove('selected');
-    if (el.getAttribute('href') == target) {
-      el.classList.add('selected');
+  let obj = document.getElementById(target + "-content");
+  document.querySelectorAll(".nav").forEach((el) => {
+    el.classList.remove("selected");
+    if (el.getAttribute("href") == target) {
+      el.classList.add("selected");
     }
-  })
+  });
   localStorage.currentPage = target;
 
   window.setTimeout(function () {
-    obj.setAttribute('style', 'display: flex;');
-  }, 500)
+    obj.setAttribute("style", "display: flex;");
+  }, 500);
 
   window.setTimeout(function () {
-    document.querySelectorAll('.content').forEach((el) => {
-      if (el.getAttribute('id') != (target + '-content')) {
-        el.setAttribute('style', 'display: none;');
+    document.querySelectorAll(".content").forEach((el) => {
+      if (el.getAttribute("id") != target + "-content") {
+        el.setAttribute("style", "display: none;");
       }
     });
-    obj.classList.remove('hidden');
+    obj.classList.remove("hidden");
   }, 525);
 }
-document.querySelectorAll('.nav').forEach((el) => {
-  el.addEventListener('click', (event) => changePage(el.getAttribute('href')));
+document.querySelectorAll(".nav").forEach((el) => {
+  el.addEventListener("click", (event) => changePage(el.getAttribute("href")));
 });
-
-// UTILITY
-
-function driveUrlToId(url) {
-  return url.substring(url.indexOf('/d/') + 3, url.indexOf('/view'));
-}
-
-function driveUrlToThumb(url) {
-  return `https://drive.google.com/thumbnail?id=${driveUrlToId(url)}&sz=w1080`;
-}
-
-function driveUrlToDownload(url) {
-  return `https://drive.google.com/uc?export=download&id=${driveUrlToId(url)}`;
-}
-
-function textToParagraph(text) {
-  let paras = text.split('\n\n');
-  let html = '';
-  paras.forEach((el) => {
-    html += `<p>${el}</p>`;
-  });
-  return html;
-}
 
 // PROJECTS
 
 function makeProjects() {
   let projectMap = new Map();
 
-  for (let i = 0; i < projects.length; i++) {
-    if (projects[i].c[PROJECTS_COLS.title] == null || projects[i].c[PROJECTS_COLS.date] == null || projects[i].c[PROJECTS_COLS.show].v == false) { continue; }
-    let date = projects[i].c[PROJECTS_COLS.date].v.split('(')[1].split(')')[0].split(',');
-    let utc = Date.UTC(date[0], date[1], date[2]);
+  for (let i = 0; i < sdb.numRecords("projects"); i++) {
+    if (
+      sdb.anyCellNull("projects", i, ["title", "date"]) ||
+      sdb.getCell("projects", i, "show") == false
+    ) {
+      continue;
+    }
+    let utc = sdb.dateToUTC(sdb.getCell("projects", i, "date"));
     projectMap.set(utc, i);
   }
 
   let projectDates = Array.from(projectMap.keys()).sort().reverse();
-  let sortedProjects = [];
+  let projIdxSorted = [];
   for (let i = 0; i < projectDates.length; i++) {
-    sortedProjects.push(projects[projectMap.get(projectDates[i])]);
+    projIdxSorted.push(projectMap.get(projectDates[i]));
   }
 
   let filters = new Set();
-  let html = '';
+  let html = "";
 
-  for (let i = 0; i < sortedProjects.length; i++) {
-    let type = '';
-    if (sortedProjects[i].c[PROJECTS_COLS.type] != null) {
-      let types = sortedProjects[i].c[PROJECTS_COLS.type].v.replace(', ', ' ');
-      types.split(' ').forEach((el) => {
+  for (let i = 0; i < projIdxSorted.length; i++) {
+    let type = "";
+    if (sdb.getCell("projects", projIdxSorted[i], "type") != null) {
+      let types = sdb
+        .getCell("projects", projIdxSorted[i], "type")
+        .replace(", ", " ");
+      types.split(" ").forEach((el) => {
         filters.add(el);
       });
       type = types.toLowerCase();
     }
 
-    html += `<li class="${type}"><div><h2>${sortedProjects[i].c[PROJECTS_COLS.title].v}</h2>`;
-    if (sortedProjects[i].c[PROJECTS_COLS.at] != null) {
-      html += `<div class="location">${sortedProjects[i].c[PROJECTS_COLS.at].v}</div>`;
+    html += `<li class="${type}"><div><h2>${sdb.getCell("projects", projIdxSorted[i], "title")}</h2>`;
+    if (sdb.getCell("projects", projIdxSorted[i], "at") != null) {
+      html += `<div class="location">${sdb.getCell("projects", projIdxSorted[i], "at")}</div>`;
     }
-    if (sortedProjects[i].c[PROJECTS_COLS.date] != null) {
-      let date = sortedProjects[i].c[PROJECTS_COLS.date].v.split('(')[1].split(')')[0].split(',');
-      html += `<div class="date">${MONTHS.get(Number(date[1]) + 1)} ${date[2]}, ${date[0]}</div>`;
+    if (sdb.getCell("projects", projIdxSorted[i], "date") != null) {
+      let date = sdb.getCell("projects", projIdxSorted[i], "date");
+      html += `<div class="date">${sdb.dateToString(date, ["Mmmm", "d", "yyyy"])}</div>`;
     }
-    if (sortedProjects[i].c[PROJECTS_COLS.body] != null) {
-      html += textToParagraph(sortedProjects[i].c[PROJECTS_COLS.body].v);
+    if (sdb.getCell("projects", projIdxSorted[i], "body") != null) {
+      html += sdb.textToParagraph(
+        sdb.getCell("projects", projIdxSorted[i], "body"),
+      );
     }
-    html += '</div>';
+    html += "</div>";
 
-    if (sortedProjects[i].c[PROJECTS_COLS.image] != null) {
-      let imgSrc = driveUrlToThumb(sortedProjects[i].c[PROJECTS_COLS.image].v);
+    if (sdb.getCell("projects", projIdxSorted[i], "image") != null) {
+      let imgSrc = sdb.driveUrlToThumb(
+        sdb.getCell("projects", projIdxSorted[i], "image"),
+      );
       html += `<figure><img src="${imgSrc}"></figure>`;
     }
-    html += '</li>';
+    html += "</li>";
   }
 
-  document.getElementById('projects').innerHTML = html;
+  document.getElementById("projects").innerHTML = html;
 
   filters = Array.from(filters).sort();
-  let filtersHTML = '<li><button id="filter-all" class="filter selected">All</button></li>';
+  let filtersHTML =
+    '<li><button id="filter-all" class="filter selected">All</button></li>';
   filters.forEach((el) => {
     filtersHTML += `<li><button id="filter-${el.toLowerCase()}" class="filter">${el}</button></li>`;
   });
 
-  document.getElementById('project-filters').innerHTML = filtersHTML;
-  document.querySelectorAll('button.filter').forEach((el) => {
-    el.addEventListener('click', (event) => { filterProjects(el.getAttribute('id').substring(7)); })
+  document.getElementById("project-filters").innerHTML = filtersHTML;
+  document.querySelectorAll("button.filter").forEach((el) => {
+    el.addEventListener("click", (event) => {
+      filterProjects(el.getAttribute("id").substring(7));
+    });
   });
 }
 
 function filterProjects(type) {
-  let allProjects = document.querySelectorAll('#projects > li');
+  let allProjects = document.querySelectorAll("#projects > li");
 
   allProjects.forEach((el) => {
-    el.style.display = 'none';
-    if (type == 'all' || el.classList.contains(type) == true) {
-      el.style.display = 'flex';
+    el.style.display = "none";
+    if (type == "all" || el.classList.contains(type) == true) {
+      el.style.display = "flex";
     }
   });
 
-  let allFilters = document.querySelectorAll('#project-filters button.filter');
+  let allFilters = document.querySelectorAll("#project-filters button.filter");
 
   allFilters.forEach((el) => {
-    el.classList.remove('selected');
-    if (el.getAttribute('id').substring(7) == type) {
-      el.classList.add('selected');
+    el.classList.remove("selected");
+    if (el.getAttribute("id").substring(7) == type) {
+      el.classList.add("selected");
     }
   });
 }
@@ -223,70 +175,90 @@ function filterProjects(type) {
 // GALLERY
 
 function makeGallery() {
-  let html = '';
+  let html = "";
 
-  for (let i = 0; i < gallery.length; i++) {
-    if (gallery[i].c[GALLERY_COLS.image] == null || gallery[i].c[GALLERY_COLS.show].v == false) { continue; }
+  for (let i = 0; i < sdb.numRecords("gallery"); i++) {
+    if (
+      sdb.getCell("gallery", i, "image") == null ||
+      sdb.getCell("gallery", i, "show") == false
+    ) {
+      continue;
+    }
 
-    let imgSrc = driveUrlToThumb(gallery[i].c[GALLERY_COLS.image].v);
+    let imgSrc = sdb.driveUrlToThumb(sdb.getCell("gallery", i, "image"));
 
     html += `<li><figure><img src="${imgSrc}"></figure></li>`;
   }
 
-  document.querySelector('#gallery-content .gallery').innerHTML = html;
+  document.querySelector("#gallery-content .gallery").innerHTML = html;
 }
 
 function makePortfolio() {
-  let html = '';
-  for (let i = 0; i < portfolio.length; i++) {
-    if (portfolio[i].c[PORTFOLIO_COLS.name] == null || portfolio[i].c[PORTFOLIO_COLS.download] == null || portfolio[i].c[PORTFOLIO_COLS.show].v == false) { continue; }
+  let html = "";
+  for (let i = 0; i < sdb.numRecords("portfolio"); i++) {
+    if (
+      sdb.anyCellNull("portfolio", i, ["name", "download"]) ||
+      sdb.getCell("portfolio", i, "show") == false
+    ) {
+      continue;
+    }
 
     let imgSrc;
-    if (portfolio[i].c[PORTFOLIO_COLS.image] != null) {
-      imgSrc = driveUrlToThumb(portfolio[i].c[PORTFOLIO_COLS.image].v);
-    }
-    else {
-      imgSrc = driveUrlToThumb(portfolio[i].c[PORTFOLIO_COLS.download].v);
+    if (sdb.getCell("portfolio", i, "image") != null) {
+      imgSrc = sdb.driveUrlToThumb(sdb.getCell("portfolio", i, "image"));
+    } else {
+      imgSrc = sdb.driveUrlToThumb(sdb.getCell("portfolio", i, "download"));
     }
 
-    html += `<li class="document"><figure><img src="${imgSrc}"></figure><div><h2>${portfolio[i].c[PORTFOLIO_COLS.name].v}</h2><a download="${portfolio[i].c[PORTFOLIO_COLS.name].v} - Sam Webel" href="${driveUrlToDownload(portfolio[i].c[PORTFOLIO_COLS.download].v)}">Download</a></div></li>`;
+    html += `<li class="document"><figure><img src="${imgSrc}"></figure><div><h2>${sdb.getCell("portfolio", i, "name")}</h2><a download="${sdb.getCell("portfolio", i, "name")} - Sam Webel" href="${sdb.driveUrlToDownload(sdb.getCell("portfolio", i, "download"))}">Download</a></div></li>`;
   }
 
-  document.querySelector('#portfolio-documents').innerHTML = html;
+  document.querySelector("#portfolio-documents").innerHTML = html;
 }
 
 // INJECTIONS
 
 function makeInjections() {
-  for (let i = 0; i < injections.length; i++) {
-    if (injections[i].c[INJECTIONS_COLS.selector] == null || injections[i].c[INJECTIONS_COLS.attribute] == null || injections[i].c[INJECTIONS_COLS.value] == null || injections[i].c[INJECTIONS_COLS.type] == null || injections[i].c[INJECTIONS_COLS.apply].v == false) { continue; }
+  for (let i = 0; i < sdb.numRecords("injections"); i++) {
+    if (
+      sdb.anyCellNull("injections", i, [
+        "selector",
+        "attribute",
+        "value",
+        "type",
+      ]) ||
+      sdb.getCell("injections", i, "apply") == false
+    ) {
+      continue;
+    }
 
-    let value = injections[i].c[INJECTIONS_COLS.value].v;
+    let value = sdb.getCell("injections", i, "value");
 
-    switch (injections[i].c[INJECTIONS_COLS.type].v) {
-      case 'Paragraphs':
-        value = textToParagraph(injections[i].c[INJECTIONS_COLS.value].v);
+    switch (sdb.getCell("injections", i, "type")) {
+      case "Paragraphs":
+        value = sdb.textToParagraph(sdb.getCell("injections", i, "value"));
         break;
-      case 'Image':
-        value = driveUrlToThumb(injections[i].c[INJECTIONS_COLS.value].v);
+      case "Image":
+        value = sdb.driveUrlToThumb(sdb.getCell("injections", i, "value"));
         break;
-      case 'Download':
-        value = driveUrlToDownload(injections[i].c[INJECTIONS_COLS.value].v);
+      case "Download":
+        value = sdb.driveUrlToDownload(sdb.getCell("injections", i, "value"));
         break;
       default:
         break;
     }
 
-    let elements = document.querySelectorAll(injections[i].c[INJECTIONS_COLS.selector].v);
+    let elements = document.querySelectorAll(
+      sdb.getCell("injections", i, "selector"),
+    );
 
-    if (injections[i].c[INJECTIONS_COLS.attribute].v == 'innerHTML') {
+    if (sdb.getCell("injections", i, "attribute") == "innerHTML") {
       elements.forEach((el) => {
         el.innerHTML = value;
       });
-    }
-    else {
+    } else {
       elements.forEach((el) => {
-        el.setAttribute(injections[i].c[INJECTIONS_COLS.attribute].v, value);
+        el.setAttribute(sdb.getCell("injections", i, "attribute"), value);
       });
     }
   }
