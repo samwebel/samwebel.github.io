@@ -1,10 +1,15 @@
-import * as sdb from "https://cdn.jsdelivr.net/gh/cjeffreybda/sheets-db@v0.0.2/sheets-db.js";
+import * as sdb from "https://cdn.jsdelivr.net/gh/cjeffreybda/sheets-db@v0.0.3/sheets-db.js";
 
 let documents = {
   main: "1NtEgXCUK2l95tw04zyHkHejwEGppVbJ53KAWKHhk06E",
 };
 
 let sheets = {
+  links: {
+    name: "Links",
+    document: "main",
+    fields: ["name", "link", "show"],
+  },
   projects: {
     name: "Projects",
     document: "main",
@@ -23,7 +28,7 @@ let sheets = {
   portfolio: {
     name: "Portfolio",
     document: "main",
-    fields: ["name", "download", "image", "show"],
+    fields: ["name", "download", "image", "video", "show"],
   },
 };
 
@@ -35,6 +40,7 @@ async function init() {
   changePage(currentPage);
 
   sdb.fetchSheet("injections", makeInjections);
+  sdb.fetchSheet("links", makeLinks);
   sdb.fetchSheet("portfolio", makePortfolio);
   sdb.fetchSheet("projects", makeProjects);
   sdb.fetchSheet("gallery", makeGallery);
@@ -73,6 +79,25 @@ function changePage(target) {
 document.querySelectorAll(".nav").forEach((el) => {
   el.addEventListener("click", (event) => changePage(el.getAttribute("href")));
 });
+
+// ABOUT
+
+function makeLinks() {
+  let html = "";
+
+  for (let i = 0; i < sdb.numRecords("links"); i++) {
+    if (
+      sdb.anyCellNull("links", i, ["name", "link"]) ||
+      sdb.getCell("links", i, "show") == false
+    ) {
+      continue;
+    }
+
+    html += `<li><a href="${sdb.getCell("links", i, "link")}" target="_blank">${sdb.getCell("links", i, "name")}</a></li>`;
+  }
+
+  document.getElementById("links").innerHTML = html;
+}
 
 // PROJECTS
 
@@ -193,24 +218,52 @@ function makeGallery() {
   document.querySelector("#gallery-content .gallery").innerHTML = html;
 }
 
+// PORTFOLIO
+
 function makePortfolio() {
   let html = "";
   for (let i = 0; i < sdb.numRecords("portfolio"); i++) {
     if (
-      sdb.anyCellNull("portfolio", i, ["name", "download"]) ||
+      sdb.anyCellNull("portfolio", i, ["name"]) ||
+      sdb.anyCellFilled("portfolio", i, ["download", "image", "video"]) ==
+        false ||
       sdb.getCell("portfolio", i, "show") == false
     ) {
       continue;
     }
 
-    let imgSrc;
-    if (sdb.getCell("portfolio", i, "image") != null) {
-      imgSrc = sdb.driveUrlToThumb(sdb.getCell("portfolio", i, "image"));
+    html += '<li class="document">';
+
+    if (sdb.getCell("portfolio", i, "video") != null) {
+      let vidUrl = sdb.getCell("portfolio", i, "video");
+      let vidSrc;
+
+      if (vidUrl.indexOf("youtube") > -1) {
+        vidSrc = sdb.ytUrlToVideo(vidUrl);
+      } else {
+        vidSrc = sdb.driveUrlToVideo(vidUrl);
+      }
+
+      html += `<iframe width="560" height="315" src="${vidSrc}" frameborder="0"></iframe>`; // 560 315
     } else {
-      imgSrc = sdb.driveUrlToThumb(sdb.getCell("portfolio", i, "download"));
+      let imgSrc;
+
+      if (sdb.getCell("portfolio", i, "image") != null) {
+        imgSrc = sdb.driveUrlToThumb(sdb.getCell("portfolio", i, "image"));
+      } else {
+        imgSrc = sdb.driveUrlToThumb(sdb.getCell("portfolio", i, "download"));
+      }
+
+      html += `<figure><img src="${imgSrc}"></figure>`;
     }
 
-    html += `<li class="document"><figure><img src="${imgSrc}"></figure><div><h2>${sdb.getCell("portfolio", i, "name")}</h2><a download="${sdb.getCell("portfolio", i, "name")} - Sam Webel" href="${sdb.driveUrlToDownload(sdb.getCell("portfolio", i, "download"))}">Download</a></div></li>`;
+    html += `<div><h2>${sdb.getCell("portfolio", i, "name")}</h2>`;
+
+    if (sdb.getCell("portfolio", i, "download") != null) {
+      html += `<a download="${sdb.getCell("portfolio", i, "name")} - Sam Webel" href="${sdb.driveUrlToDownload(sdb.getCell("portfolio", i, "download"))}">Download</a></div>`;
+    }
+
+    html += "</li>";
   }
 
   document.querySelector("#portfolio-documents").innerHTML = html;

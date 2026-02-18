@@ -142,13 +142,13 @@ header>img {
 
 header>div {
 	position: absolute;
-	left: 15%;
+	left: 0;
 	right: 0;
 	bottom: 0;
 	top: 0;
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
+	justify-content: flex-end;
 	align-items: flex-start;
 }
 
@@ -156,8 +156,11 @@ header h1 {
 	color: var(--text-alt);
 	text-shadow: 0 0.2rem 20px var(--shadow);
 	text-align: left;
+	width: 100%;
+	line-height: 1;
 	font-style: italic;
 	font-weight: 200;
+	margin: 0 0 max(4vw, 0.35em) max(4vw, 0.35em);
 }
 
 #nav-container {
@@ -244,16 +247,68 @@ button.nav:hover {
 	margin-top: 0;
 }
 
+.content p:last-of-type {
+	margin-bottom: 0;
+}
+
 /* ABOUT */
 
 #about-content {
 	padding: 4rem 4rem;
 	display: flex;
+	flex-direction: column;
+	gap: 3rem;
+	justify-content: flex-start;
+	align-items: stretch;
+}
+
+#about-container {
+	display: flex;
+	flex-direction: row;
+	gap: 3rem;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+
+#links {
+	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
-	gap: 3rem;
-	align-items: start;
-	/* flex-wrap: wrap-reverse; */
+	align-items: stretch;
+	gap: 1rem;
+	flex-wrap: wrap;
+	padding: 0;
+	margin: 0;
+	list-style-type: none;
+}
+
+#links li {
+	flex-grow: 1;
+	display: flex;
+	flex-direction: row;
+	justify-content: stretch;
+	align-items: stretch;
+}
+
+#links li a {
+	color: var(--text);
+	background-color: var(--secondary);
+	box-sizing: border-box;
+	width: 100%;
+	text-align: center;
+	font-family: inherit;
+	font-size: var(--body-size);
+	/* font-size: var(--h5-size); */
+	padding: 0.5em 0.8em;
+	transition-property: background-color color;
+	transition-duration: 0.1s;
+	transition-timing-function: ease-in-out;
+}
+
+#links li a:hover {
+	cursor: pointer;
+	color: var(--text-alt);
+	background-color: var(--primary-100);
 }
 
 /* .inner {
@@ -282,6 +337,10 @@ button.nav:hover {
 @media (max-width: 1200px) {
 	#about-content {
 		padding: 2rem 2rem;
+		gap: 2rem;
+	}
+
+	#about-container {
 		flex-direction: column-reverse;
 		gap: 2rem;
 	}
@@ -353,6 +412,10 @@ button.nav:hover {
 	justify-content: flex-start;
 	align-items: stretch;
 	box-sizing: border-box;
+}
+
+.document iframe {
+	width: 100%;
 }
 
 @media (max-width: 900px) {
