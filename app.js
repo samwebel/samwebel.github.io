@@ -8,7 +8,7 @@ let sheets = {
   links: {
     name: "Links",
     document: "main",
-    fields: ["name", "link", "show"],
+    fields: ["name", "link", "filename", "show"],
   },
   projects: {
     name: "Projects",
@@ -93,7 +93,17 @@ function makeLinks() {
       continue;
     }
 
-    html += `<li><a href="${sdb.getCell("links", i, "link")}" target="_blank">${sdb.getCell("links", i, "name")}</a></li>`;
+    html += "<li><a ";
+
+    let link = sdb.getCell("links", i, "link");
+    if (sdb.getCell("links", i, "filename") != null) {
+      html += `download="${sdb.getCell("links", i, "filename")}" `;
+      link = sdb.driveUrlToDownload(link);
+    } else {
+      html += 'target="_blank" ';
+    }
+
+    html += `href="${link}">${sdb.getCell("links", i, "name")}</a></li>`;
   }
 
   document.getElementById("links").innerHTML = html;
