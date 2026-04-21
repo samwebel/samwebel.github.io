@@ -1,4 +1,5 @@
-import * as sdb from "https://cdn.jsdelivr.net/gh/cjeffreybda/sheets-db@v0.0.3/sheets-db.js";
+// import * as sdb from "https://cdn.jsdelivr.net/gh/cjeffreybda/sheets-db@v0.0.3/sheets-db.js";
+import * as sdb from "./sheets-db.js";
 
 let documents = {
   main: "1NtEgXCUK2l95tw04zyHkHejwEGppVbJ53KAWKHhk06E",
@@ -30,6 +31,11 @@ let sheets = {
     document: "main",
     fields: ["name", "download", "image", "video", "show"],
   },
+  credits: {
+    name: "Credits",
+    document: "main",
+    fields: ["handle", "link", "icon"],
+  },
 };
 
 sdb.setReferences(documents, sheets);
@@ -39,6 +45,7 @@ async function init() {
     localStorage.currentPage != null ? localStorage.currentPage : "about";
   changePage(currentPage);
 
+  sdb.fetchSheet("credits", makeAllCredits);
   sdb.fetchSheet("injections", makeInjections);
   sdb.fetchSheet("links", makeLinks);
   sdb.fetchSheet("portfolio", makePortfolio);
@@ -79,6 +86,46 @@ function changePage(target) {
 document.querySelectorAll(".nav").forEach((el) => {
   el.addEventListener("click", (event) => changePage(el.getAttribute("href")));
 });
+
+// CREDITS
+
+function makeCredit(el) {
+  let html = "";
+
+  console.log(el.getAttribute("credit"));
+
+  for (let i = 0; i < sdb.numRecords("credits"); i++) {
+    console.log(sdb.getCell("credits", i, "handle"));
+    if (sdb.getCell("credits", i, "handle") == el.getAttribute("credit")) {
+      console.log("WEEE");
+      let hasLink = false;
+      if (sdb.getCell("credits", i, "link") != null) {
+        hasLink = true;
+        html += `<a href="${sdb.getCell("credits", i, "link")}" target="_blank">`;
+      }
+
+      if (sdb.getCell("credits", i, "icon") != null) {
+        html += `<i class="fa-brands fa-${sdb.getCell("credits", i, "icon")}"></i>`;
+      }
+
+      html += sdb.getCell("credits", i, "handle");
+
+      if (hasLink) {
+        html += "</a>";
+      }
+
+      break;
+    }
+  }
+
+  el.innerHTML = html;
+}
+
+function makeAllCredits() {
+  document.querySelectorAll("[credit]").forEach((el) => {
+    makeCredit(el);
+  });
+}
 
 // ABOUT
 
@@ -185,6 +232,8 @@ function makeProjects() {
       filterProjects(el.getAttribute("id").substring(7));
     });
   });
+
+  makeAllCredits();
 }
 
 function filterProjects(type) {
@@ -222,10 +271,18 @@ function makeGallery() {
 
     let imgSrc = sdb.driveUrlToThumb(sdb.getCell("gallery", i, "image"));
 
-    html += `<li><figure><img src="${imgSrc}"></figure></li>`;
+    html += `<li><figure><img src="${imgSrc}">`;
+
+    if (sdb.getCell("gallery", i, "caption") != null) {
+      html += `<figcaption>${sdb.getCell("gallery", i, "caption")}</figcaption>`;
+    }
+
+    html += "</figure></li>";
   }
 
   document.querySelector("#gallery-content .gallery").innerHTML = html;
+
+  makeAllCredits();
 }
 
 // PORTFOLIO
@@ -277,6 +334,8 @@ function makePortfolio() {
   }
 
   document.querySelector("#portfolio-documents").innerHTML = html;
+
+  makeAllCredits();
 }
 
 // INJECTIONS
@@ -325,4 +384,6 @@ function makeInjections() {
       });
     }
   }
+
+  makeAllCredits();
 }

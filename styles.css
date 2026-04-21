@@ -251,6 +251,16 @@ button.nav:hover {
 	margin-bottom: 0;
 }
 
+[credit]>a {
+	color: var(--text);
+	white-space: nowrap;
+}
+
+[credit] i {
+	margin-right: 0.1em;
+	box-sizing: border-box;
+}
+
 /* ABOUT */
 
 #about-content {
@@ -634,11 +644,34 @@ button.filter:active {
 .gallery>li>figure {
 	padding: 0;
 	margin: 0;
+	position: relative;
 }
 
 .gallery>li>figure>img {
 	width: 100%;
 	margin: 0;
+}
+
+.gallery>li>figure>figcaption {
+	background-color: var(--secondary);
+	position: absolute;
+	box-sizing: border-box;
+	line-height: var(--line-height);
+	font-size: var(--body-size);
+	padding: 0.5em 0.7em;
+	bottom: 0.5rem;
+	left: 0.5rem;
+	right: 0.5rem;
+	opacity: 0;
+	transform: translateY(0.1rem);
+	transition-property: opacity, transform;
+	transition-timing-function: ease-in-out;
+	transition-duration: 0.2s;
+}
+
+.gallery>li>figure:hover>figcaption {
+	opacity: 1;
+	transform: translateY(0rem);
 }
 
 /* CONTACT */
