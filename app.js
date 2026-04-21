@@ -1,5 +1,4 @@
-// import * as sdb from "https://cdn.jsdelivr.net/gh/cjeffreybda/sheets-db@v0.0.3/sheets-db.js";
-import * as sdb from "./sheets-db.js";
+import * as sdb from "https://cdn.jsdelivr.net/gh/cjeffreybda/sheets-db@v0.0.3/sheets-db.js";
 
 let documents = {
   main: "1NtEgXCUK2l95tw04zyHkHejwEGppVbJ53KAWKHhk06E",
