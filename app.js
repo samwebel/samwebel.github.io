@@ -196,10 +196,10 @@ function makeProjects() {
     if (sdb.getCell("projects", projIdxSorted[i], "at") != null) {
       html += `<div class="location">${sdb.getCell("projects", projIdxSorted[i], "at")}</div>`;
     }
-    if (sdb.getCell("projects", projIdxSorted[i], "date") != null) {
+    /* if (sdb.getCell("projects", projIdxSorted[i], "date") != null) {
       let date = sdb.getCell("projects", projIdxSorted[i], "date");
       html += `<div class="date">${sdb.dateToString(date, ["Mmmm", "d", "yyyy"])}</div>`;
-    }
+    } */
     if (sdb.getCell("projects", projIdxSorted[i], "body") != null) {
       html += sdb.textToParagraph(
         sdb.getCell("projects", projIdxSorted[i], "body"),
